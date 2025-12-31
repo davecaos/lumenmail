@@ -3,6 +3,7 @@
 
 import gleam/bit_array
 import gleam/crypto
+import gleam/list
 import gleam/string
 import lumenmail/types.{
   type AuthMechanism, type Credentials, AuthCramMd5, AuthLogin, AuthPlain,
@@ -108,13 +109,13 @@ pub fn select_best_mechanism(
 
   case credentials {
     OAuth2(_, _) -> {
-      case list_contains(available, AuthXOAuth2) {
+      case list.contains(available, AuthXOAuth2) {
         True -> Ok(AuthXOAuth2)
         False ->
-          case list_contains(available, AuthPlain) {
+          case list.contains(available, AuthPlain) {
             True -> Ok(AuthPlain)
             False ->
-              case list_contains(available, AuthLogin) {
+              case list.contains(available, AuthLogin) {
                 True -> Ok(AuthLogin)
                 False -> Error("No compatible authentication mechanism found")
               }
@@ -122,13 +123,13 @@ pub fn select_best_mechanism(
       }
     }
     Plain(_, _) -> {
-      case list_contains(available, AuthCramMd5) {
+      case list.contains(available, AuthCramMd5) {
         True -> Ok(AuthCramMd5)
         False ->
-          case list_contains(available, AuthPlain) {
+          case list.contains(available, AuthPlain) {
             True -> Ok(AuthPlain)
             False ->
-              case list_contains(available, AuthLogin) {
+              case list.contains(available, AuthLogin) {
                 True -> Ok(AuthLogin)
                 False -> Error("No compatible authentication mechanism found")
               }
@@ -161,31 +162,17 @@ pub fn parse_mechanism(s: String) -> Result(AuthMechanism, Nil) {
 
 // Helper functions
 
-fn list_contains(list: List(AuthMechanism), item: AuthMechanism) -> Bool {
-  case list {
-    [] -> False
-    [first, ..rest] ->
-      case first == item {
-        True -> True
-        False -> list_contains(rest, item)
-      }
-  }
-}
-
-@external(erlang, "base64", "encode")
-fn do_base64_encode(data: BitArray) -> String
-
-@external(erlang, "base64", "decode")
-fn do_base64_decode(data: String) -> BitArray
-
 fn base64_encode_string(s: String) -> String {
-  do_base64_encode(<<s:utf8>>)
+  bit_array.base64_encode(<<s:utf8>>, True)
 }
 
 fn base64_decode_string(s: String) -> String {
-  let decoded = do_base64_decode(s)
-  case bit_array.to_string(decoded) {
-    Ok(str) -> str
+  case bit_array.base64_decode(s) {
+    Ok(decoded) ->
+      case bit_array.to_string(decoded) {
+        Ok(str) -> str
+        Error(_) -> ""
+      }
     Error(_) -> ""
   }
 }
