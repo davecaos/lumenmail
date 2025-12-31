@@ -1,6 +1,7 @@
 //// Email message builder module.
 //// Provides a fluent API for constructing RFC 5322 compliant email messages.
 
+import gleam/bit_array
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
@@ -511,7 +512,7 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
             },
           )
           |> string_tree.append("\r\n")
-          |> string_tree.append(encode_base64(att.data) <> "\r\n\r\n")
+          |> string_tree.append(bit_array.base64_encode(att.data, True) <> "\r\n\r\n")
         })
 
       b
@@ -527,12 +528,4 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
   }
 
   string_tree.to_string(builder)
-}
-
-/// Base64 encode binary data.
-@external(erlang, "base64", "encode")
-fn do_encode_base64(data: BitArray) -> String
-
-fn encode_base64(data: BitArray) -> String {
-  do_encode_base64(data)
 }
