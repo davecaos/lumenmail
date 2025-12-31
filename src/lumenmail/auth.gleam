@@ -16,12 +16,12 @@ pub fn encode_plain(credentials: Credentials) -> String {
   case credentials {
     Plain(username, password) -> {
       let auth_string = "\u{0000}" <> username <> "\u{0000}" <> password
-      base64_encode_string(auth_string)
+      bit_array.base64_encode(<<auth_string:utf8>>, True)
     }
     OAuth2(username, _) -> {
       // For OAuth2, use PLAIN with empty password (token goes in XOAUTH2)
       let auth_string = "\u{0000}" <> username <> "\u{0000}"
-      base64_encode_string(auth_string)
+      bit_array.base64_encode(<<auth_string:utf8>>, True)
     }
   }
 }
@@ -29,16 +29,16 @@ pub fn encode_plain(credentials: Credentials) -> String {
 /// Encodes the username for LOGIN authentication (first step).
 pub fn encode_login_username(credentials: Credentials) -> String {
   case credentials {
-    Plain(username, _) -> base64_encode_string(username)
-    OAuth2(username, _) -> base64_encode_string(username)
+    Plain(username, _) -> bit_array.base64_encode(<<username:utf8>>, True)
+    OAuth2(username, _) -> bit_array.base64_encode(<<username:utf8>>, True)
   }
 }
 
 /// Encodes the password for LOGIN authentication (second step).
 pub fn encode_login_password(credentials: Credentials) -> String {
   case credentials {
-    Plain(_, password) -> base64_encode_string(password)
-    OAuth2(_, token) -> base64_encode_string(token)
+    Plain(_, password) -> bit_array.base64_encode(<<password:utf8>>, True)
+    OAuth2(_, token) -> bit_array.base64_encode(<<token:utf8>>, True)
   }
 }
 
@@ -49,20 +49,31 @@ pub fn encode_cram_md5(credentials: Credentials, challenge: String) -> String {
   case credentials {
     Plain(username, password) -> {
       // Decode the challenge from base64
-      let challenge_decoded = base64_decode_string(challenge)
+      case bit_array.base64_decode(challenge) {
+        Error(_) -> ""
+        Ok(decoded) -> {
+          case bit_array.to_string(decoded) {
+            Error(_) -> ""
+            Ok(challenge_decoded) -> {
+              // Compute HMAC-MD5
+              let digest =
+                crypto.hmac(
+                  <<challenge_decoded:utf8>>,
+                  crypto.Md5,
+                  <<password:utf8>>,
+                )
+              let hex_digest =
+                digest
+                |> bit_array.base16_encode()
+                |> string.lowercase()
 
-      // Compute HMAC-MD5
-      let digest =
-        crypto.hmac(
-          <<challenge_decoded:utf8>>,
-          crypto.Md5,
-          <<password:utf8>>,
-        )
-      let hex_digest = bit_array_to_hex(digest)
-
-      // Response is "username hex_digest"
-      let response = username <> " " <> hex_digest
-      base64_encode_string(response)
+              // Response is "username hex_digest"
+              let response = username <> " " <> hex_digest
+              bit_array.base64_encode(<<response:utf8>>, True)
+            }
+          }
+        }
+      }
     }
     OAuth2(_, _) -> {
       // OAuth2 doesn't support CRAM-MD5
@@ -82,7 +93,7 @@ pub fn encode_xoauth2(credentials: Credentials) -> String {
         <> "\u{0001}auth=Bearer "
         <> token
         <> "\u{0001}\u{0001}"
-      base64_encode_string(auth_string)
+      bit_array.base64_encode(<<auth_string:utf8>>, True)
     }
     Plain(username, password) -> {
       // Treat password as token for XOAUTH2
@@ -92,7 +103,7 @@ pub fn encode_xoauth2(credentials: Credentials) -> String {
         <> "\u{0001}auth=Bearer "
         <> password
         <> "\u{0001}\u{0001}"
-      base64_encode_string(auth_string)
+      bit_array.base64_encode(<<auth_string:utf8>>, True)
     }
   }
 }
@@ -158,27 +169,4 @@ pub fn parse_mechanism(s: String) -> Result(AuthMechanism, Nil) {
     "XOAUTH2" -> Ok(AuthXOAuth2)
     _ -> Error(Nil)
   }
-}
-
-// Helper functions
-
-fn base64_encode_string(s: String) -> String {
-  bit_array.base64_encode(<<s:utf8>>, True)
-}
-
-fn base64_decode_string(s: String) -> String {
-  case bit_array.base64_decode(s) {
-    Ok(decoded) ->
-      case bit_array.to_string(decoded) {
-        Ok(str) -> str
-        Error(_) -> ""
-      }
-    Error(_) -> ""
-  }
-}
-
-fn bit_array_to_hex(bits: BitArray) -> String {
-  bits
-  |> bit_array.base16_encode()
-  |> string.lowercase()
 }
