@@ -2,6 +2,7 @@ name = "lumenmail"
 version = "1.0.0"
 description = "A Gleam library for sending emails via SMTP, inspired by the Rust mail-send crate"
 licences = ["Apache-2.0", "MIT"]
+repository = { type = "github", user = "davecaos", repo = "lumenmail" }
 
 target = "erlang"
 
