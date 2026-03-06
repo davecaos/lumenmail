@@ -69,7 +69,9 @@ pub fn main() {
   io.println("===========================================")
   io.println("")
   io.println("Configuration:")
-  io.println("  SMTP Server: " <> smtp_server <> ":" <> int.to_string(smtp_port))
+  io.println(
+    "  SMTP Server: " <> smtp_server <> ":" <> int.to_string(smtp_port),
+  )
   io.println("  Sender: " <> sender_email)
   io.println("  Recipient: " <> test_recipient)
   io.println("")
@@ -80,29 +82,20 @@ pub fn main() {
     |> message.from_name_email(sender_name, sender_email)
     |> message.to_email(test_recipient)
     |> message.subject("Test Email from LumenMail Library")
-    |> message.text_body(
-      "Hello!
+    |> message.text_body("Hello!
 
 This is a test email sent using the Gleam LumenMail library.
 
 If you received this email, the SMTP relay is working correctly!
 
 Configuration used:
-- SMTP Server: "
-      <> smtp_server
-      <> "
-- Port: "
-      <> int.to_string(smtp_port)
-      <> " (STARTTLS)
-- Sender: "
-      <> sender_email
-      <> "
+- SMTP Server: " <> smtp_server <> "
+- Port: " <> int.to_string(smtp_port) <> " (STARTTLS)
+- Sender: " <> sender_email <> "
 
 Best regards,
-LumenMail Test Script",
-    )
-    |> message.html_body(
-      "<!DOCTYPE html>
+LumenMail Test Script")
+    |> message.html_body("<!DOCTYPE html>
 <html>
 <head>
   <style>
@@ -130,15 +123,9 @@ LumenMail Test Script",
       <div class=\"config\">
         <h3>Configuration Used:</h3>
         <ul>
-          <li><strong>SMTP Server:</strong> "
-      <> smtp_server
-      <> "</li>
-          <li><strong>Port:</strong> "
-      <> int.to_string(smtp_port)
-      <> " (STARTTLS)</li>
-          <li><strong>Sender:</strong> "
-      <> sender_email
-      <> "</li>
+          <li><strong>SMTP Server:</strong> " <> smtp_server <> "</li>
+          <li><strong>Port:</strong> " <> int.to_string(smtp_port) <> " (STARTTLS)</li>
+          <li><strong>Sender:</strong> " <> sender_email <> "</li>
         </ul>
       </div>
     </div>
@@ -147,8 +134,7 @@ LumenMail Test Script",
     </div>
   </div>
 </body>
-</html>",
-    )
+</html>")
 
   io.println("Connecting to SMTP server...")
 

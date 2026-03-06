@@ -26,11 +26,7 @@ pub type TcpOption {
 // =============================================================================
 
 /// Establishes a TCP connection to the SMTP server.
-pub fn tcp_connect(
-  host: String,
-  port: Int,
-  timeout: Int,
-) -> SmtpResult(Socket) {
+pub fn tcp_connect(host: String, port: Int, timeout: Int) -> SmtpResult(Socket) {
   let options = [Binary, ActiveFalse, PacketLine, ReuseAddr]
   case do_tcp_connect(host, port, options, timeout) {
     Ok(socket) -> Ok(socket)
@@ -224,7 +220,8 @@ fn parse_response_line(line: String) -> SmtpResult(SmtpResponse) {
             3 -> Ok(SmtpResponse(code, "", False))
             _ -> {
               let separator = string.slice(clean_line, 3, 1)
-              let message = string.slice(clean_line, 4, string.length(clean_line) - 4)
+              let message =
+                string.slice(clean_line, 4, string.length(clean_line) - 4)
               let is_multiline = separator == "-"
               Ok(SmtpResponse(code, message, is_multiline))
             }

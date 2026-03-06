@@ -396,9 +396,7 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
     // Text only, no attachments
     Some(text), None, True ->
       builder
-      |> string_tree.append(
-        "Content-Type: text/plain; charset=utf-8\r\n\r\n",
-      )
+      |> string_tree.append("Content-Type: text/plain; charset=utf-8\r\n\r\n")
       |> string_tree.append(text)
 
     // HTML only, no attachments
@@ -416,9 +414,7 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
         <> "\"\r\n\r\n",
       )
       |> string_tree.append("--" <> boundary <> "\r\n")
-      |> string_tree.append(
-        "Content-Type: text/plain; charset=utf-8\r\n\r\n",
-      )
+      |> string_tree.append("Content-Type: text/plain; charset=utf-8\r\n\r\n")
       |> string_tree.append(text <> "\r\n\r\n")
       |> string_tree.append("--" <> boundary <> "\r\n")
       |> string_tree.append("Content-Type: text/html; charset=utf-8\r\n\r\n")
@@ -491,11 +487,7 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
           builder
           |> string_tree.append("--" <> mixed_boundary <> "\r\n")
           |> string_tree.append(
-            "Content-Type: "
-            <> ct
-            <> "; name=\""
-            <> att.filename
-            <> "\"\r\n",
+            "Content-Type: " <> ct <> "; name=\"" <> att.filename <> "\"\r\n",
           )
           |> string_tree.append("Content-Transfer-Encoding: base64\r\n")
           |> string_tree.append(
@@ -505,14 +497,14 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
             <> att.filename
             <> "\"\r\n",
           )
-          |> string_tree.append(
-            case att.content_id {
-              Some(cid) -> "Content-ID: <" <> cid <> ">\r\n"
-              None -> ""
-            },
-          )
+          |> string_tree.append(case att.content_id {
+            Some(cid) -> "Content-ID: <" <> cid <> ">\r\n"
+            None -> ""
+          })
           |> string_tree.append("\r\n")
-          |> string_tree.append(bit_array.base64_encode(att.data, True) <> "\r\n\r\n")
+          |> string_tree.append(
+            bit_array.base64_encode(att.data, True) <> "\r\n\r\n",
+          )
         })
 
       b
@@ -522,10 +514,13 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
     // No body at all
     None, None, True ->
       builder
-      |> string_tree.append(
-        "Content-Type: text/plain; charset=utf-8\r\n\r\n",
-      )
+      |> string_tree.append("Content-Type: text/plain; charset=utf-8\r\n\r\n")
   }
 
-  string_tree.to_string(builder)
+  let result = string_tree.to_string(builder)
+  // Ensure message ends with \r\n so SMTP termination sequence (\r\n.\r\n) works
+  case string.ends_with(result, "\r\n") {
+    True -> result
+    False -> result <> "\r\n"
+  }
 }
