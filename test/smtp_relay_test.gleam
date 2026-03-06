@@ -50,7 +50,9 @@ pub fn main() {
   case sender_email, app_password, recipient {
     Some(sender), Some(password), Some(to) -> {
       io.println("Configuration:")
-      io.println("  SMTP Server: " <> smtp_server <> ":" <> int.to_string(smtp_port))
+      io.println(
+        "  SMTP Server: " <> smtp_server <> ":" <> int.to_string(smtp_port),
+      )
       io.println("  Sender: " <> sender_name <> " <" <> sender <> ">")
       io.println("  Recipient: " <> to)
       io.println("  Password: ****" <> mask_password(password))
@@ -92,8 +94,7 @@ fn run_test(
     |> message.from_name_email(sender_name, sender_email)
     |> message.to_email(recipient)
     |> message.subject("SMTP Relay Test - " <> get_timestamp())
-    |> message.text_body(
-      "Hello!
+    |> message.text_body("Hello!
 
 This is a test email sent using the Gleam mailsend library.
 
@@ -104,10 +105,8 @@ Configuration:
 - Sender: " <> sender_email <> "
 
 Best regards,
-SMTP Relay Test",
-    )
-    |> message.html_body(
-      "<html>
+SMTP Relay Test")
+    |> message.html_body("<html>
 <body style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">
   <div style=\"background: #2196F3; color: white; padding: 20px; text-align: center;\">
     <h1 style=\"margin: 0;\">SMTP Relay Test</h1>
@@ -121,7 +120,9 @@ SMTP Relay Test",
     <div style=\"background: white; padding: 15px; border-radius: 5px; margin: 15px 0;\">
       <h3 style=\"margin-top: 0;\">Configuration:</h3>
       <ul>
-        <li><strong>Server:</strong> " <> smtp_server <> ":" <> int.to_string(smtp_port) <> "</li>
+        <li><strong>Server:</strong> " <> smtp_server <> ":" <> int.to_string(
+      smtp_port,
+    ) <> "</li>
         <li><strong>Sender:</strong> " <> sender_email <> "</li>
       </ul>
     </div>
@@ -130,10 +131,11 @@ SMTP Relay Test",
     Sent with Mailsend - A Gleam SMTP Library
   </div>
 </body>
-</html>",
-    )
+</html>")
 
-  io.println("Connecting to " <> smtp_server <> ":" <> int.to_string(smtp_port) <> "...")
+  io.println(
+    "Connecting to " <> smtp_server <> ":" <> int.to_string(smtp_port) <> "...",
+  )
 
   // Connect to SMTP server
   let connect_result =
@@ -182,7 +184,10 @@ SMTP Relay Test",
       io.println("Troubleshooting:")
       io.println("  1. Verify SMTP server and port are correct")
       io.println("  2. Check credentials (use App Password for Gmail)")
-      io.println("  3. Ensure firewall allows outbound connections on port " <> int.to_string(smtp_port))
+      io.println(
+        "  3. Ensure firewall allows outbound connections on port "
+        <> int.to_string(smtp_port),
+      )
       io.println("  4. For Gmail: Enable 2FA and create an App Password")
     }
   }

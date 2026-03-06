@@ -57,11 +57,9 @@ pub fn encode_cram_md5(credentials: Credentials, challenge: String) -> String {
             Ok(challenge_decoded) -> {
               // Compute HMAC-MD5
               let digest =
-                crypto.hmac(
-                  <<challenge_decoded:utf8>>,
-                  crypto.Md5,
-                  <<password:utf8>>,
-                )
+                crypto.hmac(<<challenge_decoded:utf8>>, crypto.Md5, <<
+                  password:utf8,
+                >>)
               let hex_digest =
                 digest
                 |> bit_array.base16_encode()

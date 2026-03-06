@@ -30,7 +30,11 @@ pub type SmtpClientBuilder {
 
 /// Active SMTP connection.
 pub type SmtpClient {
-  SmtpClient(socket: network.Socket, capabilities: ServerCapabilities, is_tls: Bool)
+  SmtpClient(
+    socket: network.Socket,
+    capabilities: ServerCapabilities,
+    is_tls: Bool,
+  )
 }
 
 /// Socket type - re-exported from network module.
@@ -145,45 +149,43 @@ pub fn connect(builder: SmtpClientBuilder) -> SmtpResult(SmtpClient) {
   ))
 
   // Upgrade to TLS via STARTTLS if needed
-  use #(socket, is_tls, capabilities) <- result.try(case
-    builder.tls_mode,
-    is_tls,
-    capabilities.starttls
-  {
-    StartTls, False, True -> {
-      // Send STARTTLS command
-      use _ <- result.try(send_command(
-        socket,
-        is_tls,
-        "STARTTLS",
-        builder.timeout_ms,
-      ))
-      use response <- result.try(read_response(
-        socket,
-        is_tls,
-        builder.timeout_ms,
-      ))
-      use _ <- result.try(check_response_code(response, 220))
+  use #(socket, is_tls, capabilities) <- result.try(
+    case builder.tls_mode, is_tls, capabilities.starttls {
+      StartTls, False, True -> {
+        // Send STARTTLS command
+        use _ <- result.try(send_command(
+          socket,
+          is_tls,
+          "STARTTLS",
+          builder.timeout_ms,
+        ))
+        use response <- result.try(read_response(
+          socket,
+          is_tls,
+          builder.timeout_ms,
+        ))
+        use _ <- result.try(check_response_code(response, 220))
 
-      // Upgrade to TLS
-      use tls_socket <- result.try(ssl_connect(
-        socket,
-        builder.host,
-        builder.allow_invalid_certs,
-        builder.timeout_ms,
-      ))
+        // Upgrade to TLS
+        use tls_socket <- result.try(ssl_connect(
+          socket,
+          builder.host,
+          builder.allow_invalid_certs,
+          builder.timeout_ms,
+        ))
 
-      // Re-send EHLO after TLS upgrade
-      use new_caps <- result.try(send_ehlo(
-        tls_socket,
-        True,
-        builder.helo_host,
-        builder.timeout_ms,
-      ))
-      Ok(#(tls_socket, True, new_caps))
-    }
-    _, _, _ -> Ok(#(socket, is_tls, capabilities))
-  })
+        // Re-send EHLO after TLS upgrade
+        use new_caps <- result.try(send_ehlo(
+          tls_socket,
+          True,
+          builder.helo_host,
+          builder.timeout_ms,
+        ))
+        Ok(#(tls_socket, True, new_caps))
+      }
+      _, _, _ -> Ok(#(socket, is_tls, capabilities))
+    },
+  )
 
   // Authenticate if credentials provided
   use _ <- result.try(case builder.credentials {
@@ -246,12 +248,7 @@ pub fn send(client: SmtpClient, msg: Message) -> SmtpResult(Nil) {
   )
 
   // DATA
-  use _ <- result.try(send_command(
-    client.socket,
-    client.is_tls,
-    "DATA",
-    30_000,
-  ))
+  use _ <- result.try(send_command(client.socket, client.is_tls, "DATA", 30_000))
   use response <- result.try(read_response(client.socket, client.is_tls, 30_000))
   use _ <- result.try(check_response_code(response, 354))
 
@@ -307,12 +304,7 @@ pub fn send_raw(
   )
 
   // DATA
-  use _ <- result.try(send_command(
-    client.socket,
-    client.is_tls,
-    "DATA",
-    30_000,
-  ))
+  use _ <- result.try(send_command(client.socket, client.is_tls, "DATA", 30_000))
   use response <- result.try(read_response(client.socket, client.is_tls, 30_000))
   use _ <- result.try(check_response_code(response, 354))
 
@@ -341,24 +333,14 @@ pub fn close(client: SmtpClient) -> SmtpResult(Nil) {
 
 /// Resets the connection state (for sending multiple emails).
 pub fn reset(client: SmtpClient) -> SmtpResult(Nil) {
-  use _ <- result.try(send_command(
-    client.socket,
-    client.is_tls,
-    "RSET",
-    30_000,
-  ))
+  use _ <- result.try(send_command(client.socket, client.is_tls, "RSET", 30_000))
   use response <- result.try(read_response(client.socket, client.is_tls, 30_000))
   check_response_code(response, 250)
 }
 
 /// Sends a NOOP command to keep connection alive.
 pub fn noop(client: SmtpClient) -> SmtpResult(Nil) {
-  use _ <- result.try(send_command(
-    client.socket,
-    client.is_tls,
-    "NOOP",
-    30_000,
-  ))
+  use _ <- result.try(send_command(client.socket, client.is_tls, "NOOP", 30_000))
   use response <- result.try(read_response(client.socket, client.is_tls, 30_000))
   check_response_code(response, 250)
 }
@@ -386,25 +368,24 @@ fn send_ehlo(
 
   case response.code >= 200 && response.code < 300 {
     True -> Ok(parse_capabilities(response.message))
-    False ->
+    False -> {
       // Fallback to HELO
-      {
-        use _ <- result.try(send_command(
-          socket,
-          is_tls,
-          "HELO " <> helo_host,
-          timeout,
-        ))
-        use response <- result.try(read_response(socket, is_tls, timeout))
-        case response.code >= 200 && response.code < 300 {
-          True -> Ok(types.empty_capabilities())
-          False ->
-            Error(CommandRejected(
-              response.code,
-              "HELO failed: " <> response.message,
-            ))
-        }
+      use _ <- result.try(send_command(
+        socket,
+        is_tls,
+        "HELO " <> helo_host,
+        timeout,
+      ))
+      use response <- result.try(read_response(socket, is_tls, timeout))
+      case response.code >= 200 && response.code < 300 {
+        True -> Ok(types.empty_capabilities())
+        False ->
+          Error(CommandRejected(
+            response.code,
+            "HELO failed: " <> response.message,
+          ))
       }
+    }
   }
 }
 
