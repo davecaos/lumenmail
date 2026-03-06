@@ -527,5 +527,10 @@ fn build_message_string(message: Message, from_addr: Address) -> String {
       )
   }
 
-  string_tree.to_string(builder)
+  let result = string_tree.to_string(builder)
+  // Ensure message ends with \r\n so SMTP termination sequence (\r\n.\r\n) works
+  case string.ends_with(result, "\r\n") {
+    True -> result
+    False -> result <> "\r\n"
+  }
 }

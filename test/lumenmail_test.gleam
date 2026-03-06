@@ -215,6 +215,54 @@ pub fn types_empty_capabilities_test() {
   should.equal(caps.auth_mechanisms, [])
 }
 
+pub fn message_build_text_only_ends_with_crlf_test() {
+  let msg =
+    message.new()
+    |> message.from_email("sender@example.com")
+    |> message.to_email("recipient@example.com")
+    |> message.subject("Test")
+    |> message.text_body("Hello, World!")
+
+  let assert Ok(content) = message.build(msg)
+  should.be_true(string.ends_with(content, "\r\n"))
+}
+
+pub fn message_build_html_only_ends_with_crlf_test() {
+  let msg =
+    message.new()
+    |> message.from_email("sender@example.com")
+    |> message.to_email("recipient@example.com")
+    |> message.subject("Test")
+    |> message.html_body("<h1>Hello</h1>")
+
+  let assert Ok(content) = message.build(msg)
+  should.be_true(string.ends_with(content, "\r\n"))
+}
+
+pub fn message_build_multipart_ends_with_crlf_test() {
+  let msg =
+    message.new()
+    |> message.from_email("sender@example.com")
+    |> message.to_email("recipient@example.com")
+    |> message.subject("Test")
+    |> message.text_body("Plain text")
+    |> message.html_body("<h1>HTML</h1>")
+
+  let assert Ok(content) = message.build(msg)
+  should.be_true(string.ends_with(content, "\r\n"))
+}
+
+pub fn message_build_no_body_ends_with_crlf_test() {
+  let msg =
+    message.new()
+    |> message.from_email("sender@example.com")
+    |> message.to_email("recipient@example.com")
+    |> message.subject("Test")
+
+  let assert Ok(content) = message.build(msg)
+  should.be_true(string.ends_with(content, "\r\n"))
+}
+
 // Import necessary modules
 import gleam/list
 import gleam/option
