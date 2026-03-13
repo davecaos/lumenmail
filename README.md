@@ -1,9 +1,17 @@
-# LumenMail
+<p align="center">
+  <img src="logo.svg" alt="LumenMail" width="500">
+</p>
 
-A Gleam library for sending emails via SMTP, inspired by the Rust [mail-send](https://docs.rs/mail-send/latest/mail_send/) crate.
+<p align="center">
+  A Gleam library for sending emails via SMTP, inspired by the Rust <a href="https://docs.rs/mail-send/latest/mail_send/">mail-send</a> crate.
+</p>
 
-[![Package Version](https://img.shields.io/hexpm/v/lumenmail)](https://hex.pm/packages/lumenmail)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/lumenmail/)
+<p align="center">
+  <a href="https://hex.pm/packages/lumenmail"><img src="https://img.shields.io/hexpm/v/lumenmail" alt="Package Version"></a>
+  <a href="https://hexdocs.pm/lumenmail/"><img src="https://img.shields.io/badge/hex-docs-ffaff3" alt="Hex Docs"></a>
+</p>
+
+
 
 ## Features
 

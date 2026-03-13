@@ -1,0 +1,49 @@
+<svg width="500" height="200" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e" />
+      <stop offset="100%" stop-color="#16213e" />
+    </linearGradient>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#bg)" rx="15"/>
+
+  <g transform="translate(50, 65)">
+    <rect x="0" y="0" width="90" height="70" fill="#2a2a4a" rx="4"/>
+
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0,0; 0,-25; 0,0" dur="4s" repeatCount="indefinite" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1" calcMode="spline"/>
+      <rect x="10" y="5" width="70" height="60" fill="#ffaff3" rx="3" filter="url(#glow)">
+        <animate attributeName="opacity" values="0.7; 1; 0.7" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <line x1="20" y1="20" x2="60" y2="20" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+      <line x1="20" y1="35" x2="50" y2="35" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+    </g>
+
+    <path d="M 0 0 L 45 35 L 90 0 Z" fill="#3a3a6a">
+      <animate attributeName="d"
+               values="M 0 0 L 45 35 L 90 0 Z; M 0 0 L 45 -25 L 90 0 Z; M 0 0 L 45 35 L 90 0 Z"
+               dur="4s" repeatCount="indefinite" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1" calcMode="spline"/>
+    </path>
+
+    <path d="M 0 70 L 45 35 L 90 70 Z" fill="#4a4a8a"/>
+    <path d="M 0 0 L 0 70 L 45 35 Z" fill="#3f3f7a"/>
+    <path d="M 90 0 L 90 70 L 45 35 Z" fill="#3f3f7a"/>
+  </g>
+
+  <g transform="translate(170, 105)">
+    <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="46" font-weight="800" fill="#ffffff">
+      Lumen<tspan fill="#ffaff3" filter="url(#glow)">Mail</tspan>
+    </text>
+    <text y="35" font-family="monospace" font-size="16" fill="#a0a0b0" font-weight="bold">
+      >&nbsp;A fast Gleam SMTP library<tspan fill="#ffaff3">_
+        <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
+      </tspan>
+    </text>
+  </g>
+</svg>
