@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/davecaos/lumenmail/main/logo.svg" alt="LumenMail" width="500">
+  <img src="logo.gif" alt="LumenMail" width="500">
 </p>
 
 <p align="center">
