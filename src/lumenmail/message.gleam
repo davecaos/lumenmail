@@ -101,11 +101,7 @@ pub fn from_email(message: Message, email: String) -> Message {
 }
 
 /// Sets the sender with name and email.
-pub fn from_name_email(
-  message: Message,
-  name: String,
-  email: String,
-) -> Message {
+pub fn from_name_email(message: Message, name: String, email: String) -> Message {
   Message(..message, from: Some(types.address_with_name(name, email)))
 }
 

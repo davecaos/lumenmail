@@ -60,10 +60,7 @@ pub fn builder(host: String, port: Int) -> SmtpClientBuilder {
 }
 
 /// Sets the TLS mode.
-pub fn tls_mode(
-  builder: SmtpClientBuilder,
-  mode: TlsMode,
-) -> SmtpClientBuilder {
+pub fn tls_mode(builder: SmtpClientBuilder, mode: TlsMode) -> SmtpClientBuilder {
   SmtpClientBuilder(..builder, tls_mode: mode)
 }
 
@@ -99,18 +96,12 @@ pub fn auth(
 }
 
 /// Sets connection timeout in milliseconds.
-pub fn timeout(
-  builder: SmtpClientBuilder,
-  timeout_ms: Int,
-) -> SmtpClientBuilder {
+pub fn timeout(builder: SmtpClientBuilder, timeout_ms: Int) -> SmtpClientBuilder {
   SmtpClientBuilder(..builder, timeout_ms: timeout_ms)
 }
 
 /// Sets the hostname used in HELO/EHLO.
-pub fn helo_host(
-  builder: SmtpClientBuilder,
-  host: String,
-) -> SmtpClientBuilder {
+pub fn helo_host(builder: SmtpClientBuilder, host: String) -> SmtpClientBuilder {
   SmtpClientBuilder(..builder, helo_host: host)
 }
 
