@@ -23,7 +23,6 @@
 import envoy
 import gleam/int
 import gleam/io
-import gleam/result
 import lumenmail/message
 import lumenmail/smtp
 import lumenmail/types

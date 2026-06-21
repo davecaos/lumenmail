@@ -26,7 +26,11 @@ pub type TcpOption {
 // =============================================================================
 
 /// Establishes a TCP connection to the SMTP server.
-pub fn tcp_connect(host: String, port: Int, timeout: Int) -> SmtpResult(Socket) {
+pub fn tcp_connect(
+  host: String,
+  port: Int,
+  timeout: Int,
+) -> SmtpResult(Socket) {
   let options = [Binary, ActiveFalse, PacketLine, ReuseAddr]
   case do_tcp_connect(host, port, options, timeout) {
     Ok(socket) -> Ok(socket)
